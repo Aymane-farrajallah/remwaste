@@ -5,8 +5,7 @@ import Stepper from '../components/Stepper.jsx'
 function LandingPage() {
   return (
     <div className='bg-[#fff6ef]'>
-        <Stepper />    
-      
+      <Stepper />    
       <Selector />
     </div>
   )

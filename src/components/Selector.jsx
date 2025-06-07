@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState , useEffect } from 'react';
 import { Calendar, Truck, CheckCircle, XCircle, MapPin } from 'lucide-react';
 import image4 from '../assets/4yarder-skip.png'
 import image6 from '../assets/6-yarder-skip.png'
@@ -10,10 +10,6 @@ import image16 from '../assets/16-yarder-skip.png'
 import image20 from '../assets/20-yarder-skip.png'
 import image40 from '../assets/40-yarder-skip.png'
 
-const SkipHireCard = ({ skipData, index, isAnyHovered, isThisHovered, onHover, onLeave }) => {
-  const [isHovered, setIsHovered] = useState(false);
-
-  // Different skip container images based on size
   const getSkipImage = (size) => {
     const images = {
       4: image4,
@@ -29,20 +25,34 @@ const SkipHireCard = ({ skipData, index, isAnyHovered, isThisHovered, onHover, o
     return images[size] || images[8]; // fallback to 8Yard image
   };
 
-   return (
+const SkipHireCard = ({ skipData, index, isAnyHovered, isThisHovered, onHover, onLeave, isMobile }) => {
+  const [isClicked, setIsClicked] = useState(false);
+
+  const handleCardClick = () => {
+    if (isMobile) {
+      setIsClicked(!isClicked);
+    }
+  };
+
+  return (
     <div 
-      className={`relative w-80 h-96 bg-white rounded-2xl shadow-lg overflow-hidden cursor-pointer transition-all duration-500 hover:shadow-2xl ${
-        isThisHovered ? 'hover:w-[600px] z-50' : ''
-      } ${isAnyHovered && !isThisHovered ? 'blur-sm scale-95 opacity-70' : ''}`}
-      onMouseEnter={onHover}
-      onMouseLeave={onLeave}
+      className={`relative ${isMobile ? 'w-full max-w-sm mx-auto' : 'w-80'} ${
+        isMobile && isClicked ? 'h-auto' : 'h-96'
+      } bg-white rounded-2xl shadow-lg overflow-hidden cursor-pointer transition-all duration-500 hover:shadow-2xl ${
+        !isMobile && isThisHovered ? 'hover:w-[600px] z-50' : ''
+      } ${!isMobile && isAnyHovered && !isThisHovered ? 'blur-sm scale-95 opacity-70' : ''}`}
+      onMouseEnter={!isMobile ? onHover : undefined}
+      onMouseLeave={!isMobile ? onLeave : undefined}
+      onClick={handleCardClick}
       style={{ 
-        zIndex: isThisHovered ? 50 : 1 + index,
-        position: isThisHovered ? 'relative' : 'static'
+        zIndex: (!isMobile && isThisHovered) ? 50 : 1 + index,
+        position: (!isMobile && isThisHovered) ? 'relative' : 'static'
       }}
     >
       {/* Image Section - Made wider */}
-      <div className={`relative transition-all duration-700 ease-in-out ${isThisHovered ? 'w-2/5' : 'w-full'} h-full float-left overflow-hidden`}>
+      <div className={`relative transition-all duration-700 ease-in-out ${
+        isMobile ? 'w-full' : (isThisHovered ? 'w-2/5' : 'w-full')
+      } ${isMobile && isClicked ? 'h-64' : 'h-full'} float-left overflow-hidden`}>
         <div className="absolute inset-0 bg-gradient-to-br from-gray-500 via-gray-600 to-gray-700 flex flex-col">
           {/* Header - with padding */}
           <div className="flex justify-between items-center mb-4 pt-5 px-4">
@@ -51,7 +61,9 @@ const SkipHireCard = ({ skipData, index, isAnyHovered, isThisHovered, onHover, o
             </div>
 
             {/* Size indicator */}
-            <div className={` transform ml-48 -translate-x-1/2 w-16 h-6 text-center bg-white text-gray-600 rounded-full text-md font-bold ${isThisHovered ? 'opacity-0' : 'opacity-100'}`}>
+            <div className={` transform ml-48 -translate-x-1/2 w-16 h-6 text-center bg-white text-gray-600 rounded-full text-md font-bold ${
+              (isMobile ? isClicked : isThisHovered) ? 'opacity-0' : 'opacity-100'
+            }`}>
               {skipData.size} Yard
             </div>
 
@@ -63,7 +75,6 @@ const SkipHireCard = ({ skipData, index, isAnyHovered, isThisHovered, onHover, o
             )}
           </div>
           
-          {/* Skip Container Image - no padding, extends beyond frame */}
           <div className="flex-1 flex items-center justify-center mb-4 relative overflow-visible">
             <div className="relative -mt-8 -mb-4">
               <img 
@@ -75,7 +86,9 @@ const SkipHireCard = ({ skipData, index, isAnyHovered, isThisHovered, onHover, o
           </div>
 
           {/* Compact Info - with padding */}
-          <div className={`transition-opacity duration-300 px-6 pb-6 ${isThisHovered ? 'opacity-0' : 'opacity-100'}`}>
+          <div className={`transition-opacity duration-300 px-6 pb-6 ${
+            (isMobile ? isClicked : isThisHovered) ? 'opacity-0' : 'opacity-100'
+          }`}>
             <div className="text-white text-center">
               <p className="text-2xl font-bold mb-1">£{skipData.price_before_vat}</p>
               <p className="text-white text-sm">{skipData.hire_period_days} days hire</p>          
@@ -85,8 +98,14 @@ const SkipHireCard = ({ skipData, index, isAnyHovered, isThisHovered, onHover, o
       </div>
 
       {/* Expanded Info Panel - Made narrower to accommodate wider image */}
-      <div className={`transition-all duration-700 ease-in-out ${isThisHovered ? 'w-3/5 opacity-100' : 'w-0 opacity-0'} h-full bg-white overflow-hidden float-right`}>
-        <div className="p-6 h-full flex flex-col overflow-y-auto">
+      <div className={`transition-all duration-700 ease-in-out ${
+        isMobile 
+          ? (isClicked ? 'w-full opacity-100 h-auto' : 'w-0 opacity-0 h-0') 
+          : (isThisHovered ? 'w-3/5 opacity-100' : 'w-0 opacity-0')
+      } ${isMobile ? '' : 'h-full'} bg-white overflow-hidden ${
+        isMobile ? 'relative clear-both' : 'float-right'
+      }`}>
+        <div className={`p-6 ${isMobile ? 'h-auto' : 'h-full'} flex flex-col ${isMobile ? '' : 'overflow-y-auto'}`}>
           {/* Header */}
           <div className="mb-4">
             <div className="flex items-center gap-2 mb-2">
@@ -162,7 +181,7 @@ const SkipHireCard = ({ skipData, index, isAnyHovered, isThisHovered, onHover, o
           </div>
 
           {/* Pricing */}
-          <div className="mt-4 flex-shrink-0">
+          <div className={`${isMobile ? 'mt-2' : 'mt-4'} flex-shrink-0`}>
             <div className="bg-gray-50 rounded-lg p-4 mb-4">
               <div className="text-center">
                 <p className="text-sm text-gray-600 mb-1">Total Price</p>
@@ -184,6 +203,17 @@ const SkipHireCard = ({ skipData, index, isAnyHovered, isThisHovered, onHover, o
 
 const SkipHireCardsGrid = () => {
   const [hoveredCard, setHoveredCard] = useState(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
   
   const skipData = [
     {"id": 17933,"size": 4,"hire_period_days": 14,"transport_cost": null,"per_tonne_cost": null,"price_before_vat": 278,"vat": 20,"postcode": "NR32","area": "","forbidden": false,"created_at": "2025-04-03T13:51:46.897146","updated_at": "2025-04-07T13:16:52.813","allowed_on_road": true,"allows_heavy_waste": true},
@@ -205,7 +235,7 @@ const SkipHireCardsGrid = () => {
           <p className="text-gray-600">Select the skip size that best suits your needs</p>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 justify-items-center relative">
+        <div className={`grid grid-cols-1 ${isMobile ? 'gap-4' : 'md:grid-cols-2 xl:grid-cols-3 gap-8'} justify-items-center relative`}>
           {skipData.map((skip, index) => (
             <SkipHireCard 
               key={skip.id} 
@@ -215,6 +245,7 @@ const SkipHireCardsGrid = () => {
               isThisHovered={hoveredCard === skip.id}
               onHover={() => setHoveredCard(skip.id)}
               onLeave={() => setHoveredCard(null)}
+              isMobile={isMobile}
             />
           ))}
         </div>
