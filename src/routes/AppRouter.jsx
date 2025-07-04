@@ -1,13 +1,15 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import TargetPage from '../pages/targetPage.jsx'
+import LandingPage from '../pages/LandingPage.jsx';
+import OrderPage from '../pages/targetPage.jsx';
 
 const router = createBrowserRouter([
   {
     path: "/",
-    children: [
-      { index: true, element: <TargetPage /> },
-    
-    ],
+    element: <LandingPage />,
+  },
+  {
+    path: "/order",
+    element: <OrderPage />,
   },
 ]);
 

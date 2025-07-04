@@ -2,7 +2,7 @@ import React from 'react'
 import Selector from '../components/Selector.jsx'
 import Stepper from '../components/Stepper.jsx'
 
-function LandingPage() {
+function OrderPage() {
   return (
     <div className='bg-[#fff6ef]'>
       <Stepper />    
@@ -11,4 +11,4 @@ function LandingPage() {
   )
 }
  
-export default LandingPage
+export default OrderPage
